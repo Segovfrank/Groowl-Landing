@@ -1,4 +1,4 @@
-// Entrances, the flow clips and scroll-linked screen, and the privacy switches. The page reads fine without it.
+// Entrances, eased anchor scrolling, the flow clips and scroll-linked screen, and the privacy switches. The page reads fine without it.
 
 const reveal = new IntersectionObserver((entries) => {
   for (const entry of entries) {
@@ -76,23 +76,13 @@ const clipWatcher = new IntersectionObserver((entries) => {
 }, { threshold: 0.4 });
 if (prefersMotion) document.querySelectorAll('.flow-video').forEach((video) => clipWatcher.observe(video));
 
-function setTheme(isDark) {
-  document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-}
-
 function toggleBand(button) {
   const band = button.closest('.band');
   const isOn = button.getAttribute('aria-checked') !== 'true';
   button.setAttribute('aria-checked', String(isOn));
   band.classList.toggle('is-on', isOn);
-  if (band.dataset.band === 'dark') setTheme(isOn);
 }
 
-const darkSwitch = document.querySelector('[data-band="dark"] .switch');
-if (matchMedia('(prefers-color-scheme: dark)').matches) {
-  darkSwitch.setAttribute('aria-checked', 'true');
-  darkSwitch.closest('.band').classList.add('is-on');
-}
 // The local-storage band has no off: Groowl has nowhere else to keep a diary.
 document.querySelectorAll('.switch').forEach((button) => {
   button.addEventListener('click', () => {
@@ -103,3 +93,27 @@ document.querySelectorAll('.switch').forEach((button) => {
     toggleBand(button);
   });
 });
+
+// In-page links glide instead of jumping; the native smooth scroll is abrupt over the long pinned showcase.
+const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+if (prefersMotion) {
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey) return;
+    const target = document.querySelector(link.hash);
+    if (!target) return;
+    event.preventDefault();
+    const start = scrollY;
+    const end = Math.min(target.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(target).scrollMarginTop) || 0), document.documentElement.scrollHeight - innerHeight);
+    const duration = Math.min(1100, Math.max(500, Math.abs(end - start) / 4));
+    const t0 = performance.now();
+    requestAnimationFrame(function step(now) {
+      const t = Math.min(1, (now - t0) / duration);
+      scrollTo(0, start + (end - start) * ease(t));
+      if (t < 1) return requestAnimationFrame(step);
+      history.pushState(null, '', link.hash);
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    });
+  });
+}
