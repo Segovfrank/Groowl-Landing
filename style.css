@@ -217,7 +217,7 @@ h1, h2, p { margin: 0; }
 .showcase-screen {
   width: 100%; height: auto; max-width: none;
   border: 0; border-radius: 0;
-  transform: translateY(-12.8%); /* without the scroll handler, rest on the pattern card (520 / 4061) */
+  transform: translateY(-14.8%); /* without the scroll handler, rest on the pattern card (520 / 3524) */
   will-change: transform;
 }
 /* the app bar stays put while the screen scrolls under it, as in the app */

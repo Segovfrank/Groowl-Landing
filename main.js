@@ -10,7 +10,7 @@ const reveal = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach((el) => reveal.observe(el));
 
 // Third flow: the page's scroll drives the app screen inside the phone, holding still on each note.
-const SCREEN_H = 4061, FRAME_SCREEN_H = 2424; // px of the stitched capture and of one phone screen
+const SCREEN_H = 3524, FRAME_SCREEN_H = 2424; // px of the stitched capture and of one phone screen
 const STOPS = [0, 520, SCREEN_H - FRAME_SCREEN_H]; // screen scroll offsets the scene rests on
 const showcase = document.querySelector('.showcase');
 const screen = showcase.querySelector('.showcase-screen');
